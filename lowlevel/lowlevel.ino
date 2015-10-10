@@ -9,7 +9,7 @@
 int input;
 
 ISR(TIMER2_COMPA_vect) {
-  PORTB ^= 1 << 5;//toggle pin 13
+  PORTB ^= 1 << 5;//toggle pin 13 check samplerate
   input = analogRead(0);
   //too slow
   //analogWrite(5, input);
@@ -20,7 +20,6 @@ ISR(TIMER2_COMPA_vect) {
 void setup() {
   // put your setup code here, to run once:
 
-  //pin 13 output
   //Data Direction Register port D
   //9, 10, 13 output
   DDRB  |= (1 << 1)| (1<<2) |(1<<5);
