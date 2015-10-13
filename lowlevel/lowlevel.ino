@@ -18,7 +18,7 @@
 // vector names
 // http://www.nongnu.org/avr-libc/user-manual/group__avr__interrupts.html
 
-int input;
+signed int input;
 
 
 ISR(TIMER2_COMPA_vect) {
@@ -31,7 +31,7 @@ ISR(TIMER2_COMPA_vect) {
   //put twoscomplement flag into PORTC
   //this enables one or the other half
   //of the H-bridge
-  PORTC = input & BIT7;
+  PORTD = input & BIT7;
 
   //using PNP drivers for 1st half and NPN for 
   //2nd half of the bridge
@@ -40,7 +40,7 @@ ISR(TIMER2_COMPA_vect) {
   //ie.: the neg values are inverted so we get
   //inverted pulsewidth, but so is the driver.
   //except for +1 ?? yeah. well crossover distortion
-  OCR1A = input;
+  OCR1A = 2*input;
   
   //OCR1B = input;
 }
@@ -52,7 +52,7 @@ void setup() {
   //9, 10, 13 output
   DDRB  |= (1 << 1)| (1<<2) |(1<<5);
   PORTB=0b00000110;
-  DDRC |= ((1<<POSPIN)|(1<<NEGPIN));
+  DDRD = 0b10000000;
   
   //setup timer 1 for fast PWM
   //clear OC1A on compare match
