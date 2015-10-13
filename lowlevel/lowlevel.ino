@@ -3,18 +3,46 @@
 
 #include <avr/interrupt.h>
 
+#define BIT0 0b00000001
+#define BIT1 0b00000010
+#define BIT2 0b00000100
+#define BIT3 0b00001000
+#define BIT4 0b00010000
+#define BIT5 0b00100000
+#define BIT6 0b01000000
+#define BIT7 0b10000000
+
+#define POSPIN 2
+#define NEGPIN 7
+
 // vector names
 // http://www.nongnu.org/avr-libc/user-manual/group__avr__interrupts.html
 
 int input;
 
+
 ISR(TIMER2_COMPA_vect) {
   PORTB ^= 1 << 5;//toggle pin 13 check samplerate
   input = analogRead(0);
+  input -= 512;
   //too slow
   //analogWrite(5, input);
+
+  //put twoscomplement flag into PORTC
+  //this enables one or the other half
+  //of the H-bridge
+  PORTC = input & BIT7;
+
+  //using PNP drivers for 1st half and NPN for 
+  //2nd half of the bridge
+  //and the fact that we use 2's complement
+  //the next line should simply do it.
+  //ie.: the neg values are inverted so we get
+  //inverted pulsewidth, but so is the driver.
+  //except for +1 ?? yeah. well crossover distortion
   OCR1A = input;
-  OCR1B = input;
+  
+  //OCR1B = input;
 }
 
 void setup() {
@@ -24,6 +52,7 @@ void setup() {
   //9, 10, 13 output
   DDRB  |= (1 << 1)| (1<<2) |(1<<5);
   PORTB=0b00000110;
+  DDRC |= ((1<<POSPIN)|(1<<NEGPIN));
   
   //setup timer 1 for fast PWM
   //clear OC1A on compare match
